@@ -46,26 +46,11 @@
                 <v-card-title class="text-h4">
                     Shipment Tracking
                 </v-card-title>
-                <v-container fluid>
-                    <v-table >
-                        <thead class="text-h6">
-                        <tr>
-                            <th class="text-left">
-                            Shipment ID
-                            </th>
-                            <th class="text-left">
-                            From
-                            </th>
-                            <th class="text-left">
-                            To
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <!-- display list of retrieved shipments -->
-                        </tbody>
-                    </v-table>
-                </v-container>
+                <v-data-table-virtual
+                    :items="shipments_packaging.concat(shipments_distribution)"
+                    height="150"
+                    item-value="name"
+                ></v-data-table-virtual>
             </v-card>
         </v-row>
         <v-row align="center" justify="center">
@@ -87,7 +72,7 @@ definePageMeta({
 })
 
 import { useNuxtApp } from '#app';
-import { doc, onSnapshot} from 'firebase/firestore';
+import { doc, collection, onSnapshot} from 'firebase/firestore';
 
 const nuxtApp = useNuxtApp();
 
@@ -98,6 +83,9 @@ const inventory_empty_dist = ref(0);
 const inventory_full_pack = ref(0);
 const inventory_defect_pack = ref(0);
 const inventory_empty_pack = ref(0);
+
+const shipments_distribution = ref([]);
+const shipments_packaging = ref([]);
 
 const unsubdistribution = onSnapshot(doc(nuxtApp.$firestore, 'distributionCentres', 'c29ijMVUIyvNeY4wfsXQ'), (doc) => {
     console.log('Current data', doc.data())
@@ -113,8 +101,6 @@ const unsubdistribution = onSnapshot(doc(nuxtApp.$firestore, 'distributionCentre
             inventory_defect_dist.value += 1;
         }
     })
-
-    // doc.data().stockOut.forEach((stock))
 })
 
 const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZHGg3FsUOR0q2BGgvrlG'), (doc) => {
@@ -122,6 +108,7 @@ const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZH
     inventory_full_pack.value = 0;
     inventory_empty_pack.value = 0;
     inventory_defect_pack.value = 0;
+    let shipments_pack = [];
     doc.data().stockIn.forEach((stock) => {
         if(stock.cylinder[0].status === 'Full'){
             inventory_full_pack.value += 1;
@@ -132,6 +119,37 @@ const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZH
         }
     })
 
-    // doc.data().stockOut.forEach((stock))
+    doc.data().stockOut.forEach((stock) =>{
+        shipments_pack.push(
+            {
+                shipId: stock.shipId,
+                to: stock.to.location,
+                from: "Packaging Station",
+                cylinders: stock.cylinder.length, 
+                createdOn: stock.date
+            }
+        )
+    })
+    shipments_packaging.value = shipments_pack;
+})
+
+const unsubdist=  onSnapshot(collection(nuxtApp.$firestore, 'distributionCentres'), (snapshot) => {
+    let shipments_dist = [];
+    snapshot.docs.forEach((doc) => {
+        // console.log(doc.data())
+        doc.data().stockOut.forEach((stock) => {
+            let stockDetails = {
+                shipId: stock.shipId,
+                from: stock.from.location,
+                to: "Packaging Station",
+                cylinders: stock.cylinder.length, 
+                createdOn: stock.date
+            }
+            if(!shipments_dist.includes(stockDetails)){
+                shipments_dist.push(stockDetails);
+            }        
+        })
+        shipments_distribution.value = shipments_dist
+    })
 })
 </script>

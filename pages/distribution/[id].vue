@@ -53,6 +53,12 @@
                                 <v-card-title class="text-h5 success">
                                     Incoming
                                 </v-card-title>
+                                <v-data-table-virtual
+                                    :items="shipment_in"
+                                    height="300"
+                                    item-value="name"
+                                    class="bg-primary"
+                                ></v-data-table-virtual>
                             </v-card>
                         </v-col>
                         <v-col>
@@ -80,7 +86,7 @@ definePageMeta({
 })
 
 import { useNuxtApp } from '#app';
-import { doc, onSnapshot} from 'firebase/firestore';
+import { doc, collection, onSnapshot} from 'firebase/firestore';
 
 const nuxtApp = useNuxtApp();
 const route = useRoute();
@@ -88,8 +94,8 @@ const route = useRoute();
 const inventory_full = ref(0);
 const inventory_defect = ref(0);
 const inventory_empty = ref(0);
-const shipment_out = ref([])
-
+const shipment_out = ref([]);
+const shipment_in = ref([]);
 const unsub = onSnapshot(doc(nuxtApp.$firestore, 'distributionCentres', route.params.id), (doc) => {
     console.log('Current data', doc.data())
     inventory_full.value = 0;
@@ -118,4 +124,37 @@ const unsub = onSnapshot(doc(nuxtApp.$firestore, 'distributionCentres', route.pa
     shipment_out.value = stockOut;
 })
 
+const unsubdistribution =  onSnapshot(collection(nuxtApp.$firestore, 'distributionCentres'), (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+        if(change.type === 'added'){
+            console.log("Added", change.doc.data())
+        }
+        if(change.type === 'modified'){
+            console.log("Modified", change.doc.data());
+        }
+    })
+})
+
+const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZHGg3FsUOR0q2BGgvrlG'), (doc) => {
+    // console.log('Current data', doc.data())
+    let stockIn = [];
+    doc.data().stockOut.forEach((stock) => {
+        if(stock.to.id === route.params.id){
+            let stockDetails = {
+                shipId: stock.shipId, 
+                cylinders: stock.cylinder.length, 
+                createdOn: stock.date
+            }
+            if(!stockIn.includes(stockDetails)){
+                stockIn.push({
+                    shipId: stock.shipId, 
+                    cylinders: stock.cylinder.length, 
+                    createdOn: stock.date
+                });
+            }
+        }
+        
+    })
+    shipment_in.value = stockIn;
+})
 </script>
