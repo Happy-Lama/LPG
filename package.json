@@ -11,8 +11,15 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@pinia/nuxt": "^0.5.1",
+    "firebase": "^10.12.3",
+    "firebaseui": "^6.1.0",
     "nuxt": "^3.12.3",
+    "pinia": "^2.1.7",
     "vue": "latest",
     "vuetify": "^3.6.13"
+  },
+  "overrides": {
+    "vue": "latest"
   }
 }
