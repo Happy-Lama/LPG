@@ -91,6 +91,7 @@ const updateAuthorizedUsers = (collection) => {
 const onSubmit = () => {
     loading.value = true
     const accessLevel = userStore.getAccessLevel();
+    console.log("Access Level", accessLevel);
     if(accessLevel === 'distribution'){
         updateAuthorizedUsers('distributionCentres')
     }

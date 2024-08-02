@@ -91,12 +91,8 @@ const updateAuthorizedUsers = (collection) => {
 const onSubmit = () => {
     loading.value = true
     const accessLevel = userStore.getAccessLevel();
-    if(accessLevel === 'distribution'){
-        updateAuthorizedUsers('distributionCentres')
-    }
-    if(accessLevel === 'packaging'){
-        updateAuthorizedUsers('packagingPlants')
-    }
+    alert("Not yet supported");
+    loading.value = false;
     
 }
 const required = (v) => {
