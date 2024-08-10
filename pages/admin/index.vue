@@ -59,7 +59,9 @@
                     Reports
                 </v-card-title>
                 <v-container fluid>
-                    <v-btn class="bg-primary">Generate Report</v-btn>
+                    <nuxt-link to='/admin/report'>
+                        <v-btn class="bg-primary">Generate Report</v-btn>
+                    </nuxt-link>
                 </v-container>
             </v-card>
         </v-row>
@@ -93,9 +95,9 @@ const unsubdistribution = onSnapshot(doc(nuxtApp.$firestore, 'distributionCentre
     inventory_empty_dist.value = 0;
     inventory_defect_dist.value = 0;
     doc.data().stockIn.forEach((stock) => {
-        if(stock.cylinder[0].status === 'Full'){
+        if(stock.cylinders[0].status === 'Full'){
             inventory_full_dist.value += 1;
-        } else if (stock.cylinder[0].status === 'Empty'){
+        } else if (stock.cylinders[0].status === 'Empty'){
             inventory_empty_dist.value += 1;
         } else {
             inventory_defect_dist.value += 1;
@@ -110,9 +112,9 @@ const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZH
     inventory_defect_pack.value = 0;
     let shipments_pack = [];
     doc.data().stockIn.forEach((stock) => {
-        if(stock.cylinder[0].status === 'Full'){
+        if(stock.cylinders[0].status === 'Full'){
             inventory_full_pack.value += 1;
-        } else if (stock.cylinder[0].status === 'Empty'){
+        } else if (stock.cylinders[0].status === 'Empty'){
             inventory_empty_pack.value += 1;
         } else {
             inventory_defect_pack.value += 1;
@@ -125,7 +127,7 @@ const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZH
                 shipId: stock.shipId,
                 to: stock.to.location,
                 from: "Packaging Station",
-                cylinders: stock.cylinder.length, 
+                cylinders: stock.cylinders.length, 
                 createdOn: stock.date
             }
         )
@@ -140,9 +142,9 @@ const unsubdist=  onSnapshot(collection(nuxtApp.$firestore, 'distributionCentres
         doc.data().stockOut.forEach((stock) => {
             let stockDetails = {
                 shipId: stock.shipId,
-                from: stock.from.location,
-                to: "Packaging Station",
-                cylinders: stock.cylinder.length, 
+                from: doc.id,
+                to: stock.to.location,
+                cylinders: stock.cylinders.length, 
                 createdOn: stock.date
             }
             if(!shipments_dist.includes(stockDetails)){

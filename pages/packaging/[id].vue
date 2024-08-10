@@ -104,9 +104,9 @@ const unsub = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', route.params
     inventory_empty.value = 0;
     inventory_defect.value = 0;
     doc.data().stockIn.forEach((stock) => {
-        if(stock.cylinder[0].status === 'Full'){
+        if(stock.cylinders[0].status === 'Full'){
             inventory_full.value += 1;
-        } else if (stock.cylinder[0].status === 'Empty'){
+        } else if (stock.cylinders[0].status === 'Empty'){
             inventory_empty.value += 1;
         } else {
             inventory_defect.value += 1;
@@ -114,14 +114,16 @@ const unsub = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', route.params
     })
 
     let stockOut = [];
-    doc.data().stockOut.forEach((stock) => {
-        
-        stockOut.push({
-            shipId: stock.shipId, 
-            cylinders: stock.cylinder.length, 
-            createdOn: stock.date
-        }); 
-         
+    doc.data().stockOut.forEach((stock) =>{
+        stockOut.push(
+            {
+                shipId: stock.shipId,
+                to: stock.to.location,
+                from: "Packaging Station",
+                cylinders: stock.cylinders.length, 
+                createdOn: stock.date
+            }
+        )
     })
 
     shipment_out.value = stockOut;

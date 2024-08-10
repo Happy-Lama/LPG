@@ -96,44 +96,57 @@ const inventory_defect = ref(0);
 const inventory_empty = ref(0);
 const shipment_out = ref([]);
 const shipment_in = ref([]);
+
 const unsub = onSnapshot(doc(nuxtApp.$firestore, 'distributionCentres', route.params.id), (doc) => {
     console.log('Current data', doc.data())
     inventory_full.value = 0;
     inventory_empty.value = 0;
     inventory_defect.value = 0;
     doc.data().stockIn.forEach((stock) => {
-        if(stock.cylinder[0].status === 'Full'){
+        if(stock.cylinders[0].status === 'Full'){
             inventory_full.value += 1;
-        } else if (stock.cylinder[0].status === 'Empty'){
+        } else if (stock.cylinders[0].status === 'Empty'){
             inventory_empty.value += 1;
         } else {
             inventory_defect.value += 1;
         }
     })
     let stockOut = [];
-    doc.data().stockOut.forEach((stock) => {
+    // doc.data().stockOut.forEach((stock) => {
         
-        stockOut.push({
-            shipId: stock.shipId, 
-            cylinders: stock.cylinder.length, 
-            createdOn: stock.date
-        }); 
+    //     stockOut.push({
+    //         shipId: stock.shipId, 
+    //         cylinders: stock.cylinder.length, 
+    //         createdOn: stock.date
+    //     }); 
          
+    // })
+    doc.data().stockOut.forEach((stock) => {
+        let stockDetails = {
+            shipId: stock.shipId,
+            // from: doc.id,
+            // to: stock.to.location,
+            cylinders: stock.cylinders.length, 
+            createdOn: stock.date
+        }
+        if(!stockOut.includes(stockDetails)){
+            stockOut.push(stockDetails);
+        }        
     })
 
     shipment_out.value = stockOut;
 })
 
-const unsubdistribution =  onSnapshot(collection(nuxtApp.$firestore, 'distributionCentres'), (snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-        if(change.type === 'added'){
-            console.log("Added", change.doc.data())
-        }
-        if(change.type === 'modified'){
-            console.log("Modified", change.doc.data());
-        }
-    })
-})
+// const unsubdistribution =  onSnapshot(collection(nuxtApp.$firestore, 'distributionCentres'), (snapshot) => {
+//     snapshot.docChanges().forEach((change) => {
+//         if(change.type === 'added'){
+//             console.log("Added", change.doc.data())
+//         }
+//         if(change.type === 'modified'){
+//             console.log("Modified", change.doc.data());
+//         }
+//     })
+// })
 
 const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZHGg3FsUOR0q2BGgvrlG'), (doc) => {
     // console.log('Current data', doc.data())
@@ -142,15 +155,11 @@ const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZH
         if(stock.to.id === route.params.id){
             let stockDetails = {
                 shipId: stock.shipId, 
-                cylinders: stock.cylinder.length, 
+                cylinders: stock.cylinders.length, 
                 createdOn: stock.date
             }
             if(!stockIn.includes(stockDetails)){
-                stockIn.push({
-                    shipId: stock.shipId, 
-                    cylinders: stock.cylinder.length, 
-                    createdOn: stock.date
-                });
+                stockIn.push(stockDetails);
             }
         }
         
