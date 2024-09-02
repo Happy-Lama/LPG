@@ -3,6 +3,8 @@
       <v-layout>
         <v-navigation-drawer
           permanent
+          class="no-print"
+          style="width: 12rem"
         >
           <v-list-item
             prepend-icon="mdi-account-circle"
@@ -19,7 +21,7 @@
             <v-list-item prepend-icon="mdi-power" title="Logout" value="users" @click="onLogout"></v-list-item>
           </v-list>
         </v-navigation-drawer>
-        <v-main>
+        <v-main width="100%">
             <slot />
         </v-main>
       </v-layout>
