@@ -3,7 +3,7 @@
         <v-row align="center" justify="center">
             <v-card style="width: 100%;" class="pa-5 ma-2" variant="flat">
                 <v-card-title class="text-h4">
-                    Inventory
+                    Pending Orders
                 </v-card-title>
                 <v-container fluid>
                     <v-row>
@@ -35,42 +35,6 @@
                                 <v-card-text class="text-h3">
                                     {{ inventory_defect }}
                                 </v-card-text>
-                            </v-card>
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </v-card>
-        </v-row>
-        <v-row align="center" justify="center">
-            <v-card style="width: 100%;" class="pa-5 ma-2" variant="flat">
-                <v-card-title class="text-h4">
-                    Shipment Tracking
-                </v-card-title>
-                <v-container fluid>
-                    <v-row>
-                        <v-col>
-                            <v-card class="pa-2 ma-2 bg-primary" variant="flat" style="height: 20rem;">
-                                <v-card-title class="text-h5 success">
-                                    Incoming
-                                </v-card-title>
-                                <v-data-table-virtual
-                                    :items="shipment_in"
-                                    height="300"
-                                    item-value="name"
-                                    class="bg-primary"
-                                ></v-data-table-virtual>
-                            </v-card>
-                        </v-col>
-                        <v-col>
-                            <v-card class="pa-2 ma-2 bg-warn" variant="flat" style="height: 20rem;">
-                                <v-card-title class="text-h5 info">
-                                    Outgoing
-                                </v-card-title>
-                                <v-data-table-virtual
-                                    :items="shipment_out"
-                                    height="300"
-                                    item-value="name"
-                                ></v-data-table-virtual>
                             </v-card>
                         </v-col>
                     </v-row>
@@ -138,23 +102,4 @@ const unsub = onSnapshot(doc(nuxtApp.$firestore, 'distributionCentres', route.pa
     shipment_out.value = stockOut;
 })
 
-
-const unsubpackaging = onSnapshot(doc(nuxtApp.$firestore, 'packagingPlants', 'ZHGg3FsUOR0q2BGgvrlG'), (doc) => {
-    // console.log('Current data', doc.data())
-    let stockIn = [];
-    doc.data().stockOut.forEach((stock) => {
-        if(stock.to.id === route.params.id){
-            let stockDetails = {
-                shipId: stock.shipId, 
-                cylinders: stock.cylinders.length, 
-                createdOn: stock.date
-            }
-            if(!stockIn.includes(stockDetails)){
-                stockIn.push(stockDetails);
-            }
-        }
-        
-    })
-    shipment_in.value = stockIn;
-})
 </script>

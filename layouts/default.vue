@@ -18,6 +18,7 @@
           <v-list density="compact" nav>
             <NuxtLink :to="'/' + userStore.getAccessLevel() + '/' + userStore.getStation()"><v-list-item prepend-icon="mdi-home-city" title="Dashboard" value="dashboard"></v-list-item></NuxtLink>
             <NuxtLink :to="'/auth/register/' + userStore.getStation()"><v-list-item prepend-icon="mdi-account-plus" title="Add New User" value="Register"></v-list-item></NuxtLink>
+            <NuxtLink v-if="userStore.getAccessLevel() === 'distribution'" :to="'/' + userStore.getAccessLevel()  + '/orders/' + userStore.getStation()"><v-list-item prepend-icon="mdi-truck" title="Orders" value="Register"></v-list-item></NuxtLink>
             <v-list-item prepend-icon="mdi-power" title="Logout" value="users" @click="onLogout"></v-list-item>
           </v-list>
         </v-navigation-drawer>
